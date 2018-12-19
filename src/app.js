@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import http from 'http';
 import {normalizePort, onError, onListening} from './helpers/serverHelper';
+import persistElevator from './middlewares/persistElevator';
 
 /**
  * Routes import
@@ -27,6 +28,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(persistElevator);
 
 /**
  * Routes
