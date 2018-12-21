@@ -6,7 +6,12 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import http from 'http';
 import {normalizePort, onError, onListening} from './helpers/serverHelper';
-import persistElevator from './middlewares/persistElevator';
+import persistElevator from './helpers/persistElevator';
+
+/**
+ * Elevator simulation
+ */
+const elevator = (new persistElevator()).getElevatorFromCache();
 
 /**
  * Routes import
@@ -28,7 +33,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(persistElevator);
 
 /**
  * Routes
