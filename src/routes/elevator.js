@@ -1,5 +1,6 @@
 import express from 'express';
 import building from '../models/building';
+import io_client from 'socket.io-client';
 
 const fs = require('fs');
 const showdown = require('showdown');
@@ -23,6 +24,24 @@ router.get('/building', function (req, res) {
     console.log('Returned the building structure');
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(building));
+});
+
+/**
+ * Open the elevator's doors
+ */
+router.get('/doors/open', function (req, res) {
+    const socket = io_client.connect('http://localhost:3000/');
+    socket.emit('action_open_doors');
+    res.sendStatus(204);
+});
+
+/**
+ * Close the elevator's doors
+ */
+router.get('/doors/close', function (req, res) {
+    const socket = io_client.connect('http://localhost:3000/');
+    socket.emit('action_close_doors');
+    res.sendStatus(204);
 });
 
 export default router;
