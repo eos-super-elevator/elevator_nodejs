@@ -7,13 +7,12 @@ import logger from 'morgan';
 import http from 'http';
 import {normalizePort, onError, onListening} from './helpers/serverHelper';
 import persistElevator from './helpers/persistElevator';
-
-const socketio = require('socket.io');
+import socketio from 'socket.io';
 
 /**
  * Elevator simulation
  */
-const elevator = (new persistElevator()).getElevatorFromCache();
+const waitElevatorInfo = new persistElevator().getElevatorFromCache();
 
 /**
  * Routes import
@@ -50,6 +49,9 @@ io.on('connection', function (socket) {
      */
     socket.on('action_open_doors', function () {
         console.log('Open the doors');
+        waitElevatorInfo.then(elevator => {
+            elevator.openDoors();
+        });
     });
 
     /**
@@ -57,6 +59,9 @@ io.on('connection', function (socket) {
      */
     socket.on('action_close_doors', function () {
         console.log('Close the doors');
+        waitElevatorInfo.then(elevator => {
+            elevator.closeDoors();
+        });
     });
 
     /**

@@ -34,12 +34,14 @@ export default class persistElevator {
      * Retrieve elevator from cache
      */
     async getElevatorFromCache() {
-        let elevator = await storage.getItem('elevator');
-        if (elevator === undefined) {
+        const elevatorState = await storage.getItem('elevator');
+        let elevator;
+        if (elevatorState === undefined) {
             elevator = new Elevator();
             console.log('New elevator instantiated');
             this.storeElevatorInCache(elevator);
         } else {
+            elevator = new Elevator(elevatorState);
             console.log('Retrieved elevator from cache');
         }
         return elevator;
