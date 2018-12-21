@@ -2,6 +2,10 @@ const building = {
     "floor_height": 4,
     "floors": [
         {
+            "id": 0,
+            "restricted_area": false
+        },
+        {
             "id": 1,
             "restricted_area": false
         },
