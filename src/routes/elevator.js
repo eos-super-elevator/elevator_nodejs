@@ -44,4 +44,13 @@ router.get('/doors/close', function (req, res) {
     res.sendStatus(204);
 });
 
+/**
+ * Go to the nth floor
+ */
+router.get('/floor/:id', function (req, res) {
+    const socket = io_client.connect('http://localhost:3000/');
+    socket.emit('action_move_to', {floor: req.params.id});
+    res.sendStatus(204);
+});
+
 export default router;

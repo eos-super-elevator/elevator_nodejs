@@ -58,6 +58,13 @@ io.on('connection', function (socket) {
     socket.on('action_close_doors', function () {
         console.log('Close the doors');
     });
+
+    /**
+     * Go to the nth floor
+     */
+    socket.on('action_move_to', function (data) {
+        console.log(`Move to floor ${data.floor}`);
+    });
 });
 
 /**
