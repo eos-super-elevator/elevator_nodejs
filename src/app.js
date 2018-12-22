@@ -7,7 +7,7 @@ import logger from 'morgan';
 import http from 'http';
 import {normalizePort, onError, onListening} from './helpers/serverHelper';
 import persistElevator from './helpers/persistElevator';
-import socketio from 'socket.io';
+import io_server from 'socket.io';
 
 /**
  * Elevator simulation
@@ -39,8 +39,25 @@ app.use(cookieParser());
 /**
  * Sockets
  */
-const io = socketio(server);
+const io = io_server(server);
 io.on('connection', function (socket) {
+
+    /**
+     * Emit the initial elevator state on connection
+     */
+    waitElevatorInfo.then(elevator => {
+        socket.emit('new_elevator_state', elevator);
+    });
+
+    /**
+     * Emit the new elevator state
+     */
+    socket.on('updated_elevator', function () {
+        console.log('Updated elevator state');
+        waitElevatorInfo.then(elevator => {
+            socket.emit('new_elevator_state', elevator);
+        });
+    });
 
     /**
      * Open doors command
