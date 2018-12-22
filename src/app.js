@@ -1,30 +1,19 @@
-/**
- * Packages import
- */
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import http from 'http';
-import {normalizePort, onError, onListening} from './helpers/serverHelper';
-import persistElevator from './helpers/persistElevator';
-import io_server from 'socket.io';
-
-/**
- * Elevator simulation
- */
-const waitElevatorInfo = new persistElevator().getElevatorFromCache();
-
-/**
- * Routes import
- */
 import elevatorRouter from './routes/elevator';
 import pageNotFoundRouter from './routes/pageNotFound'
 import errorsHandlerRouter from './routes/errorsHandler'
+import {normalizePort, onError, onListening} from './helpers/serverHelper';
+import {storageInit, getElevatorFromCache} from './helpers/persistElevator';
+import io_server from 'socket.io';
 
 /**
- * Express
+ * Express : Elevator simulation
  * @type {*|Function}
  */
+let elevator;
 const app = express();
 const server = http.createServer(app);
 
@@ -37,7 +26,14 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
 /**
- * Sockets
+ * Routes : handles command via API
+ */
+app.use('/', elevatorRouter);
+app.use('/', pageNotFoundRouter);
+app.use(errorsHandlerRouter);
+
+/**
+ * Sockets : handle command via sockets communication
  */
 const io = io_server(server);
 io.on('connection', function (socket) {
@@ -45,18 +41,14 @@ io.on('connection', function (socket) {
     /**
      * Emit the initial elevator state on connection
      */
-    waitElevatorInfo.then(elevator => {
-        socket.emit('new_elevator_state', elevator);
-    });
+    socket.emit('new_elevator_state', elevator);
 
     /**
      * Emit the new elevator state
      */
     socket.on('updated_elevator', function () {
         console.log('Updated elevator state');
-        waitElevatorInfo.then(elevator => {
-            socket.emit('new_elevator_state', elevator);
-        });
+        socket.emit('new_elevator_state', elevator);
     });
 
     /**
@@ -64,9 +56,7 @@ io.on('connection', function (socket) {
      */
     socket.on('action_open_doors', function () {
         console.log('Open the doors command');
-        waitElevatorInfo.then(elevator => {
-            elevator.openDoors();
-        });
+        elevator.openDoors();
     });
 
     /**
@@ -74,9 +64,7 @@ io.on('connection', function (socket) {
      */
     socket.on('action_close_doors', function () {
         console.log('Close the doors command');
-        waitElevatorInfo.then(elevator => {
-            elevator.closeDoors();
-        });
+        elevator.closeDoors();
     });
 
     /**
@@ -88,11 +76,11 @@ io.on('connection', function (socket) {
 });
 
 /**
- * Routes
+ * Storage
  */
-app.use('/', elevatorRouter);
-app.use('/', pageNotFoundRouter);
-app.use(errorsHandlerRouter);
+storageInit().then(() => {
+    console.log('Initialized storage');
+});
 
 /**
  * Get port from environment and store in Express.
@@ -103,6 +91,9 @@ app.set('port', port);
 /**
  * Create HTTP server and listen on provided port, on all network interfaces.
  */
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening.bind(this, server));
+getElevatorFromCache().then((elevatorInstance) => {
+    elevator = elevatorInstance;
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening.bind(this, server));
+});

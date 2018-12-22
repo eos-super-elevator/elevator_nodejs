@@ -1,5 +1,5 @@
 import io_client from 'socket.io-client';
-import persistElevator from '../helpers/persistElevator';
+import {updateElevatorInCache} from '../helpers/persistElevator';
 
 export default class Elevator {
 
@@ -52,7 +52,7 @@ export default class Elevator {
      * Update the elevator state
      */
     _updateState() {
-        new persistElevator().updateElevatorInCache(this).then(() => {
+        updateElevatorInCache(this).then(() => {
             const socket = io_client.connect('http://localhost:3000/');
             socket.emit('updated_elevator');
         });
