@@ -42,13 +42,11 @@ app.use(cookieParser());
 const io = socketio(server);
 io.on('connection', function (socket) {
 
-    console.log('Accepted connection to the socket server');
-
     /**
      * Open doors command
      */
     socket.on('action_open_doors', function () {
-        console.log('Open the doors');
+        console.log('Open the doors command');
         waitElevatorInfo.then(elevator => {
             elevator.openDoors();
         });
@@ -58,7 +56,7 @@ io.on('connection', function (socket) {
      * Close doors command
      */
     socket.on('action_close_doors', function () {
-        console.log('Close the doors');
+        console.log('Close the doors command');
         waitElevatorInfo.then(elevator => {
             elevator.closeDoors();
         });
