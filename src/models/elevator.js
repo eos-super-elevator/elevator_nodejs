@@ -80,8 +80,8 @@ export default class Elevator {
      * Move to nth floor
      */
     move() {
-        const firstStep = this.elevator.requested_floors.shift();
-        let from = parseInt(this.elevator.floor), to = parseInt(firstStep.floor);
+        const nextStep = this.elevator.requested_floors.shift();
+        let from = parseInt(this.elevator.floor), to = parseInt(nextStep.floor);
         // Already present elevator
         if (from === to) {
             console.log(`Elevator is already present floor ${this.elevator.floor}. Opening doors`);
@@ -100,6 +100,7 @@ export default class Elevator {
                     switch (this.elevator.status) {
                         case 'moving':
                             error = 'Elevator is already moving';
+                            this.elevator.requested_floors.unshift(nextStep);
                     }
                     return error;
                 },
@@ -119,12 +120,15 @@ export default class Elevator {
                     console.log('Etage actuel: ' + this.elevator.floor);
                     this.openDoors();
                     this._updateState();
+                    if (this.elevator.requested_floors.length) {
+                        this.move();
+                    }
                 }
             });
         }).catch(() => {
             this.elevator.status = 'stopped';
             this.elevator.direction = null;
-            this.elevator.requested_floors.unshift(firstStep);
+            this.elevator.requested_floors.unshift(nextStep);
             this.move();
         });
     }
