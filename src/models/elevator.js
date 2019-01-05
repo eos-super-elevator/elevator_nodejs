@@ -9,9 +9,10 @@ export default class Elevator {
     constructor(state) {
         this.doors = {};
         this.doors.command = null; // null | close | open
-        this.doors.status = 'opened'; // closed | opened | closing | opening
+        this.doors.status = 'closed'; // closed | opened | closing | opening
         this.doors.percent = 0; // 100 : closed | 0 opened
         this.doors.timer_toggle = 4000;
+        this.doors.timer_before_close = 2000;
 
         this.elevator = {};
         this.elevator.status = 'stopped'; // stopped | moving
@@ -102,10 +103,22 @@ export default class Elevator {
                 this.doors.status = 'opened';
                 this.doors.command = null;
                 this.doors.percent = 0;
+                this.delayCloseDoors();
                 this._updateState();
                 console.log('Doors 100% opened');
             }
         });
+    }
+
+    /**
+     * Request close door after timer
+     */
+    delayCloseDoors() {
+        setTimeout(() => {
+            if (this.doors.status === "opened") {
+                this.closeDoors();
+            }
+        }, this.doors.timer_before_close);
     }
 
     /**
