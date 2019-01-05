@@ -7,7 +7,10 @@ Get the JSON building description
 ### /floor/:id
 Go to the nth floor
 #### [/floor/0](http://localhost:3000/floor/0)
+#### [/floor/0/up](http://localhost:3000/floor/0/up)
 #### [/floor/1](http://localhost:3000/floor/1)
+#### [/floor/1/up](http://localhost:3000/floor/1/up)
+#### [/floor/1/down](http://localhost:3000/floor/1/down)
 #### [/floor/2](http://localhost:3000/floor/2)
 #### [/floor/3](http://localhost:3000/floor/3)
 #### [/floor/4](http://localhost:3000/floor/4)
@@ -16,6 +19,8 @@ Go to the nth floor
 #### [/floor/7](http://localhost:3000/floor/7)
 #### [/floor/8](http://localhost:3000/floor/8)
 #### [/floor/9](http://localhost:3000/floor/9)
+#### [/floor/9/up](http://localhost:3000/floor/9/up)
+#### [/floor/9/down](http://localhost:3000/floor/9/down)
 #### [/floor/10](http://localhost:3000/floor/10)
 ### [/doors/open](http://localhost:3000/doors/open)
 Open the elevator's doors
