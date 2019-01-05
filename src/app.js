@@ -73,7 +73,6 @@ io.on('connection', function (socket) {
     socket.on('action_move_to', function (data) {
         console.log(`Move to floor ${data.floor} command`);
         elevator.addRequest(data);
-        elevator.move();
     });
 });
 

@@ -12,13 +12,13 @@ export default class Elevator {
         this.doors.command = null; // null | close | open
         this.doors.status = 'closed'; // closed | opened | closing | opening
         this.doors.percent = 100; // 100 : closed | 0 opened
-        this.doors.timer_toggle = 4000;
+        this.doors.timer_toggle = 2000;
         this.doors.timer_before_close = 4000;
 
         this.elevator = {};
         this.elevator.status = 'stopped'; // stopped | moving
         this.elevator.direction = null; // null | up | down
-        this.elevator.timer_move = 4000;
+        this.elevator.timer_move = 1000;
         this.elevator.floor = state ? state.elevator.floor : 0;
         this.elevator.requested_floors = [];
     }
@@ -73,13 +73,60 @@ export default class Elevator {
         } else {
             this.elevator.requested_floors.push(data);
         }
+        this.move();
     }
 
     /**
      * Move to nth floor
      */
     move() {
-        console.log(`TODO : move action`);
+        const firstStep = this.elevator.requested_floors.shift();
+        let from = parseInt(this.elevator.floor), to = parseInt(firstStep.floor);
+        // Already present elevator
+        if (from === to) {
+            console.log(`Elevator is already present floor ${this.elevator.floor}. Opening doors`);
+            this.elevator.status = 'stopped';
+            this.elevator.direction = null;
+            this.openDoors();
+            return true;
+        }
+        // Close doors before moving
+        this.waitClosedDoors().then(() => {
+            this._timerObservable().subscribe({
+                eventDuration: this.elevator.timer_move * Math.abs(to - from),
+                subscribeErrors: () => {
+                    let error = false;
+                    // check elevator status
+                    switch (this.elevator.status) {
+                        case 'moving':
+                            error = 'Elevator is already moving';
+                    }
+                    return error;
+                },
+                handleErrors: () => false,
+                next: (startTime, duration) => {
+                    this.elevator.direction = (to > from) ? 'up' : 'down';
+                    this.elevator.status = 'moving';
+                    const progress = parseFloat((Date.now() - startTime) / this.elevator.timer_move);
+                    this.elevator.floor = this.elevator.direction === 'up' ? from + progress : from - progress;
+                    console.log('Etage actuel: ' + this.elevator.floor);
+                    this._updateState();
+                },
+                complete: () => {
+                    this.elevator.status = 'stopped';
+                    this.elevator.direction = null;
+                    this.elevator.floor = to;
+                    console.log('Etage actuel: ' + this.elevator.floor);
+                    this.openDoors();
+                    this._updateState();
+                }
+            });
+        }).catch(() => {
+            this.elevator.status = 'stopped';
+            this.elevator.direction = null;
+            this.elevator.requested_floors.unshift(firstStep);
+            this.move();
+        });
     }
 
     /**
@@ -187,6 +234,22 @@ export default class Elevator {
                 this._updateState();
                 console.log('Doors 100% closed');
             }
+        });
+    }
+
+    /**
+     * Resolve on closed doors
+     */
+    waitClosedDoors() {
+        return new Promise((resolve, reject) => {
+            const failToClose = setTimeout(reject, this.doors.timer_toggle + this.doors.timer_before_close);
+            const checkDoors = setInterval(() => {
+                if (this.doors.status === 'closed') {
+                    clearTimeout(failToClose);
+                    clearInterval(checkDoors);
+                    resolve();
+                }
+            }, 500);
         });
     }
 }
