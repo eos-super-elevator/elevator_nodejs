@@ -47,9 +47,9 @@ router.get('/doors/close', function (req, res) {
 /**
  * Go to the nth floor
  */
-router.get('/floor/:id', function (req, res) {
+router.get('/floor/:id/:action?', function (req, res) {
     const socket = io_client.connect('http://localhost:3000/');
-    socket.emit('action_move_to', {floor: req.params.id});
+    socket.emit('action_move_to', {floor: req.params.id, action: req.params.action});
     res.sendStatus(204);
 });
 

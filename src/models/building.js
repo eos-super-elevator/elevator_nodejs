@@ -41,7 +41,10 @@ const building = {
             "id": 9,
             "restricted_area": false
         }
-    ]
+    ],
+    "existsFloor": (floor) => {
+        return (floor >= 0 && floor <= building.floors.length);
+    }
 };
 
 export default building;

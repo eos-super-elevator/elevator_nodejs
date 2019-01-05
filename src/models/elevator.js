@@ -1,5 +1,6 @@
 import io_client from 'socket.io-client';
 import {updateElevatorInCache} from '../helpers/persistElevator';
+import building from "./building";
 
 export default class Elevator {
 
@@ -10,13 +11,16 @@ export default class Elevator {
         this.doors = {};
         this.doors.command = null; // null | close | open
         this.doors.status = 'closed'; // closed | opened | closing | opening
-        this.doors.percent = 0; // 100 : closed | 0 opened
+        this.doors.percent = 100; // 100 : closed | 0 opened
         this.doors.timer_toggle = 4000;
-        this.doors.timer_before_close = 2000;
+        this.doors.timer_before_close = 4000;
 
         this.elevator = {};
         this.elevator.status = 'stopped'; // stopped | moving
+        this.elevator.direction = null; // null | up | down
+        this.elevator.timer_move = 4000;
         this.elevator.floor = state ? state.elevator.floor : 0;
+        this.elevator.requested_floors = [];
     }
 
     /**
@@ -57,6 +61,25 @@ export default class Elevator {
             const socket = io_client.connect('http://localhost:3000/');
             socket.emit('updated_elevator');
         });
+    }
+
+    /**
+     * Add a requested floor to the list
+     * @param floor
+     */
+    addRequest(data) {
+        if (!building.existsFloor(data.floor)) {
+            console.log('Requested floor not found');
+        } else {
+            this.elevator.requested_floors.push(data);
+        }
+    }
+
+    /**
+     * Move to nth floor
+     */
+    move() {
+        console.log(`TODO : move action`);
     }
 
     /**
