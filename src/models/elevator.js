@@ -79,58 +79,120 @@ export default class Elevator {
     }
 
     /**
-     * Move to nth floor
+     * Remove the command after finished
+     */
+    removeRequest() {
+        this.elevator.requested_floors.shift();
+        this.elevator.status = 'stopped';
+        this.elevator.direction = null;
+    }
+
+    /**
+     * move the elevator
      */
     move() {
-        const nextStep = this.elevator.requested_floors.shift();
-        let from = parseInt(this.elevator.floor), to = parseInt(nextStep.floor);
-        // Already present elevator
+        if (this.elevator.requested_floors.length > 0) {
+            this.optimize();
+            if (this.elevator.status !== 'moving') {
+                this.optimizedMove();
+            }
+        }
+    }
+
+    /**
+     * Optimize the elevator movement
+     */
+    optimize() {
+        // Stop the current movement
+        if (this.elevator.status === 'moving') {
+            this.elevator.status = 'stopped';
+            this.elevator.new_request = true;
+        }
+        // Current information
+        const from = parseFloat(this.elevator.floor);
+        const to = parseInt(this.elevator.requested_floors[0].floor);
+        const direction = (to > from) ? 'up' : 'down';
+        // All on the way floors
+        let floors = this.elevator.requested_floors.filter((element, index) => {
+            const floor = parseInt(element.floor);
+            const inTheWay = direction === 'up' ? from < floor && floor < to : from > floor && floor > to;
+            const sameDirection = direction === element.action || element.action === null;
+            if (inTheWay && sameDirection) {
+                this.elevator.requested_floors.splice(index, 1);
+                return true;
+            }
+        });
+        // Sort
+        const sortFloors = (a, b) => {
+            if (parseInt(a.floor) < parseInt(b.floor)) {
+                return direction === 'up' ? -1 : 1;
+            }
+            return direction === 'up' ? 1 : -1;
+        };
+        // Construct new optimized array
+        if (floors.length > 0) {
+            floors = floors.sort(sortFloors);
+            for (let i = floors.length - 1; i >= 0; i--) {
+                this.elevator.requested_floors.unshift(floors[i]);
+            }
+        }
+    }
+
+    /**
+     * Move to nth floor
+     */
+    optimizedMove() {
+        // next floor to reach
+        const nextStep = this.elevator.requested_floors[0];
+        let from = parseFloat(this.elevator.floor), to = parseInt(nextStep.floor);
+        this.elevator.direction = (to > from) ? 'up' : 'down';
+        // already present elevator
         if (from === to) {
             console.log(`Elevator is already present floor ${this.elevator.floor}. Opening doors`);
-            this.elevator.status = 'stopped';
-            this.elevator.direction = null;
+            this.removeRequest();
             this.openDoors();
-            return true;
+            return;
         }
-        // Close doors before moving
+        // close doors before moving
         this.waitClosedDoors().then(() => {
             this._timerObservable().subscribe({
                 eventDuration: this.elevator.timer_move * Math.abs(to - from),
                 subscribeErrors: () => {
+                    if (this.elevator.status === 'moving') {
+                        let error = false;
+                        if (this.elevator.status === 'moving') {
+                            error = "Already moving elevator";
+                        }
+                        return error;
+                    }
+                },
+                handleErrors: () => {
                     let error = false;
-                    // check elevator status
-                    switch (this.elevator.status) {
-                        case 'moving':
-                            error = 'Elevator is already moving';
-                            this.elevator.requested_floors.unshift(nextStep);
+                    if (this.elevator.new_request) {
+                        this.elevator.new_request = false;
+                        error = "New command detected";
                     }
                     return error;
                 },
-                handleErrors: () => false,
                 next: (startTime, duration) => {
-                    this.elevator.direction = (to > from) ? 'up' : 'down';
                     this.elevator.status = 'moving';
                     const progress = parseFloat((Date.now() - startTime) / this.elevator.timer_move);
                     this.elevator.floor = this.elevator.direction === 'up' ? from + progress : from - progress;
-                    console.log('Etage actuel: ' + this.elevator.floor);
+                    log('elevator', 'Etage actuel: ' + this.elevator.floor);
                     this._updateState();
                 },
                 complete: () => {
-                    this.elevator.status = 'stopped';
-                    this.elevator.direction = null;
                     this.elevator.floor = to;
-                    console.log('Etage actuel: ' + this.elevator.floor);
-                    this.openDoors();
+                    this.removeRequest();
                     this._updateState();
-                    if (this.elevator.requested_floors.length) {
-                        this.move();
-                    }
+                    log('elevator', `Etage actuel: ${to}`, true);
+                    this.openDoors();
+                    this.move();
                 }
             });
         }).catch(() => {
             this.elevator.status = 'stopped';
             this.elevator.direction = null;
-            this.elevator.requested_floors.unshift(nextStep);
             this.move();
         });
     }
@@ -248,7 +310,6 @@ export default class Elevator {
      */
     waitClosedDoors() {
         return new Promise((resolve, reject) => {
-            const failToClose = setTimeout(reject, this.doors.timer_toggle + this.doors.timer_before_close);
             const checkDoors = setInterval(() => {
                 if (this.doors.status === 'closed') {
                     clearTimeout(failToClose);
@@ -256,6 +317,10 @@ export default class Elevator {
                     resolve();
                 }
             }, 500);
+            const failToClose = setTimeout(() => {
+                clearInterval(checkDoors);
+                reject();
+            }, this.doors.timer_toggle + this.doors.timer_before_close);
         });
     }
 }
