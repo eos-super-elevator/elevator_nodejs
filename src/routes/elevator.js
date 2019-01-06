@@ -49,7 +49,7 @@ router.get('/doors/close', function (req, res) {
  */
 router.get('/floor/:id/:action?', function (req, res) {
     const socket = io_client.connect('http://localhost:3000/');
-    socket.emit('action_move_to', {floor: req.params.id, action: req.params.action});
+    socket.emit('action_move_to', {floor: req.params.id, action: req.params.action ? req.params.action : null});
     res.sendStatus(204);
 });
 
