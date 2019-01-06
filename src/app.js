@@ -8,6 +8,7 @@ import errorsHandlerRouter from './routes/errorsHandler'
 import {normalizePort, onError, onListening} from './helpers/serverHelper';
 import {storageInit, getElevatorFromCache} from './helpers/persistElevator';
 import io_server from 'socket.io';
+import log from './helpers/advancedLog';
 
 /**
  * Express : Elevator simulation
@@ -47,7 +48,7 @@ io.on('connection', function (socket) {
      * Emit the new elevator state
      */
     socket.on('updated_elevator', function () {
-        console.log('Updated elevator state');
+        log('state', 'Updated elevator state');
         socket.emit('new_elevator_state', elevator);
     });
 
@@ -55,7 +56,7 @@ io.on('connection', function (socket) {
      * Open doors command
      */
     socket.on('action_open_doors', function () {
-        console.log('Open the doors command');
+        log('command', 'Open the doors command');
         elevator.openDoors();
     });
 
@@ -63,7 +64,7 @@ io.on('connection', function (socket) {
      * Close doors command
      */
     socket.on('action_close_doors', function () {
-        console.log('Close the doors command');
+        log('command', 'Close the doors command');
         elevator.closeDoors();
     });
 
@@ -71,7 +72,7 @@ io.on('connection', function (socket) {
      * Go to the nth floor
      */
     socket.on('action_move_to', function (data) {
-        console.log(`Move to floor ${data.floor} command`);
+        log('command', `Move to floor ${data.floor} command`);
         elevator.addRequest(data);
     });
 });

@@ -1,6 +1,7 @@
 import io_client from 'socket.io-client';
 import {updateElevatorInCache} from '../helpers/persistElevator';
 import building from "./building";
+import log from '../helpers/advancedLog';
 
 export default class Elevator {
 
@@ -13,7 +14,7 @@ export default class Elevator {
         this.doors.status = 'closed'; // closed | opened | closing | opening
         this.doors.percent = 100; // 100 : closed | 0 opened
         this.doors.timer_toggle = 2000;
-        this.doors.timer_before_close = 4000;
+        this.doors.timer_before_close = 2000;
 
         this.elevator = {};
         this.elevator.status = 'stopped'; // stopped | moving
@@ -21,6 +22,7 @@ export default class Elevator {
         this.elevator.timer_move = 1000;
         this.elevator.floor = state ? state.elevator.floor : 0;
         this.elevator.requested_floors = [];
+        this.elevator.new_request = false;
     }
 
     /**
@@ -69,7 +71,7 @@ export default class Elevator {
      */
     addRequest(data) {
         if (!building.existsFloor(data.floor)) {
-            console.log('Requested floor not found');
+            log('command', 'Requested floor not found');
         } else {
             this.elevator.requested_floors.push(data);
         }
@@ -171,7 +173,7 @@ export default class Elevator {
                 this.doors.status = 'opening';
                 this.doors.percent = Math.round(duration * 100 / this.doors.timer_toggle) - Math.round((Date.now() - startTime) * 100 / this.doors.timer_toggle);
                 this._updateState();
-                console.log(`Doors : ${100 - this.doors.percent}% opened`);
+                log('doors', `Doors : ${100 - this.doors.percent}% opened`);
             },
             complete: () => {
                 this.doors.status = 'opened';
@@ -179,7 +181,7 @@ export default class Elevator {
                 this.doors.percent = 0;
                 this.delayCloseDoors();
                 this._updateState();
-                console.log('Doors 100% opened');
+                log('doors', 'Doors : 100% opened', true);
             }
         });
     }
@@ -229,14 +231,14 @@ export default class Elevator {
                 this.doors.status = 'closing';
                 this.doors.percent = 100 - Math.round(duration * 100 / this.doors.timer_toggle) + Math.round((Date.now() - startTime) * 100 / this.doors.timer_toggle);
                 this._updateState();
-                console.log(`Doors : ${this.doors.percent}% closed`);
+                log('doors', `Doors : ${this.doors.percent}% closed`);
             },
             complete: () => {
                 this.doors.command = null;
                 this.doors.status = 'closed';
                 this.doors.percent = 100;
                 this._updateState();
-                console.log('Doors 100% closed');
+                log('doors', 'Doors : 100% closed', true);
             }
         });
     }
