@@ -34,16 +34,16 @@ export default class Elevator {
         let message = '';
         switch (status) {
             case 'closed':
-                message = 'Closed doors';
+                message = 'Closed doors      ';
                 break;
             case 'opened':
-                message = 'Opened doors';
+                message = 'Opened doors      ';
                 break;
             case 'closing':
-                message = 'Closing doors';
+                message = 'Closing doors     ';
                 break;
             case 'opening':
-                message = 'Opening doors';
+                message = 'Opening doors     ';
                 break;
             default:
                 message = 'Unknown doors status';
