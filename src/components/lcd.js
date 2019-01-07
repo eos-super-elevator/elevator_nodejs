@@ -1,18 +1,8 @@
-var LCD = require('lcdi2c');
-var lcd = new LCD(1, 0x3f, 20, 4); // sudo i2cdetect -y 1 --> replace 0x27 par 0x3f
+import {lcd} from './init';
 
-lcd.println('This is line 1...', 1);
-if (lcd.error) {
-    lcdErrorHandler(lcd.error);
-} else {
-    lcd.println('This is line 2...', 2);
+export default (message, line = 1) => {
+    lcd.println(message, line);
     if (lcd.error) {
-        lcdErrorHandler(lcd.error);
+        console.log('Unable to print to LCD display on bus 1 at address 0x27');
     }
-    lcd.clear();
-    // lcd.on() lcd.off()
-}
-
-function lcdErrorHandler(err) {
-    console.log('Unable to print to LCD display on bus 1 at address 0x27');
 }

@@ -2,6 +2,7 @@ import io_client from 'socket.io-client';
 import {updateElevatorInCache} from '../helpers/persistElevator';
 import building from "./building";
 import log from '../helpers/advancedLog';
+import printOnLcd from '../components/lcd';
 
 export default class Elevator {
 
@@ -11,7 +12,7 @@ export default class Elevator {
     constructor(state) {
         this.doors = {};
         this.doors.command = null; // null | close | open
-        this.doors.status = 'closed'; // closed | opened | closing | opening
+        this.setDoorsStatus('closed'); // closed | opened | closing | opening
         this.doors.percent = 100; // 100 : closed | 0 opened
         this.doors.timer_toggle = 2000;
         this.doors.timer_before_close = 2000;
@@ -20,9 +21,44 @@ export default class Elevator {
         this.elevator.status = 'stopped'; // stopped | moving
         this.elevator.direction = null; // null | up | down
         this.elevator.timer_move = 1000;
-        this.elevator.floor = state ? state.elevator.floor : 0;
+        this.setElevatorFloor(state ? state.elevator.floor : 0);
         this.elevator.requested_floors = [];
         this.elevator.new_request = false;
+    }
+
+    /**
+     * Update doors status
+     */
+    setDoorsStatus(status) {
+        this.doors.status = status;
+        let message = '';
+        switch (status) {
+            case 'closed':
+                message = 'Closed doors';
+                break;
+            case 'opened':
+                message = 'Opened doors';
+                break;
+            case 'closing':
+                message = 'Closing doors';
+                break;
+            case 'opening':
+                message = 'Opening doors';
+                break;
+            default:
+                message = 'Unknown doors status';
+        }
+        printOnLcd(message, 2);
+        console.log(message);
+    }
+
+    /**
+     * Update elevator current floor
+     */
+    setElevatorFloor(floor) {
+        this.elevator.floor = floor;
+        printOnLcd('Floor: ' + parseInt(floor), 1);
+        console.log('Floor: ' + floor);
     }
 
     /**
@@ -177,15 +213,13 @@ export default class Elevator {
                 next: (startTime, duration) => {
                     this.elevator.status = 'moving';
                     const progress = parseFloat((Date.now() - startTime) / this.elevator.timer_move);
-                    this.elevator.floor = this.elevator.direction === 'up' ? from + progress : from - progress;
-                    log('elevator', 'Etage actuel: ' + this.elevator.floor);
+                    this.setElevatorFloor(this.elevator.direction === 'up' ? from + progress : from - progress);
                     this._updateState();
                 },
                 complete: () => {
-                    this.elevator.floor = to;
+                    this.setElevatorFloor(to);
                     this.removeRequest();
                     this._updateState();
-                    log('elevator', `Etage actuel: ${to}`, true);
                     this.openDoors();
                     this.move();
                 }
@@ -232,18 +266,17 @@ export default class Elevator {
                 return error;
             },
             next: (startTime, duration) => {
-                this.doors.status = 'opening';
+                this.setDoorsStatus('opening');
                 this.doors.percent = Math.round(duration * 100 / this.doors.timer_toggle) - Math.round((Date.now() - startTime) * 100 / this.doors.timer_toggle);
                 this._updateState();
                 log('doors', `Doors : ${100 - this.doors.percent}% opened`);
             },
             complete: () => {
-                this.doors.status = 'opened';
+                this.setDoorsStatus('opened');
                 this.doors.command = null;
                 this.doors.percent = 0;
                 this.delayCloseDoors();
                 this._updateState();
-                log('doors', 'Doors : 100% opened', true);
             }
         });
     }
@@ -290,17 +323,16 @@ export default class Elevator {
                 return error;
             },
             next: (startTime, duration) => {
-                this.doors.status = 'closing';
+                this.setDoorsStatus('closing');
                 this.doors.percent = 100 - Math.round(duration * 100 / this.doors.timer_toggle) + Math.round((Date.now() - startTime) * 100 / this.doors.timer_toggle);
                 this._updateState();
                 log('doors', `Doors : ${this.doors.percent}% closed`);
             },
             complete: () => {
                 this.doors.command = null;
-                this.doors.status = 'closed';
+                this.setDoorsStatus('closed');
                 this.doors.percent = 100;
                 this._updateState();
-                log('doors', 'Doors : 100% closed', true);
             }
         });
     }
