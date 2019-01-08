@@ -87,11 +87,6 @@ io.on('connection', function (socket) {
 });
 
 /**
- * components
- */
-initComponent();
-
-/**
  * Storage
  */
 storageInit().then(() => {
@@ -108,7 +103,11 @@ app.set('port', port);
  * Create HTTP server and listen on provided port, on all network interfaces.
  */
 getElevatorFromCache().then((elevatorInstance) => {
+    // Elevator
     elevator = elevatorInstance;
+    // Components
+    initComponent(elevator);
+    // Server
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListening.bind(this, server));

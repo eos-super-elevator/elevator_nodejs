@@ -4,6 +4,7 @@ import building from "./building";
 import log from '../helpers/advancedLog';
 import {printOnLcd} from '../components/lcd';
 import {watchDoors, stopWatchDoors} from '../components/sonar';
+import {moveMotor} from '../components/servo';
 
 export default class Elevator {
 
@@ -61,6 +62,13 @@ export default class Elevator {
         this.elevator.floor = floor;
         printOnLcd('Floor: ' + parseInt(floor), 1);
         console.log('Floor: ' + floor);
+    }
+
+    /**
+     * Update elevator current floor
+     */
+    getElevatorFloor() {
+        return parseInt(this.elevator.floor);
     }
 
     /**
@@ -216,11 +224,13 @@ export default class Elevator {
                     this.elevator.status = 'moving';
                     const progress = parseFloat((Date.now() - startTime) / this.elevator.timer_move);
                     this.setElevatorFloor(this.elevator.direction === 'up' ? from + progress : from - progress);
+                    moveMotor(this.getElevatorFloor());
                     this._updateState();
                 },
                 complete: () => {
                     this.setElevatorFloor(to);
                     this.removeRequest();
+                    moveMotor(to);
                     this._updateState();
                     this.openDoors();
                     this.move();

@@ -42,8 +42,11 @@ const building = {
             "restricted_area": false
         }
     ],
-    "existsFloor": (floor) => {
+    existsFloor: (floor) => {
         return (floor >= 0 && floor <= building.floors.length);
+    },
+    getMaxFloor: () => {
+        return building.floors.length;
     }
 };
 
