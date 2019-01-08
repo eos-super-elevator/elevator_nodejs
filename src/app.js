@@ -9,6 +9,7 @@ import {normalizePort, onError, onListening} from './helpers/serverHelper';
 import {storageInit, getElevatorFromCache} from './helpers/persistElevator';
 import io_server from 'socket.io';
 import log from './helpers/advancedLog';
+import initComponent from './components/init';
 
 /**
  * Express : Elevator simulation
@@ -61,6 +62,14 @@ io.on('connection', function (socket) {
     });
 
     /**
+     * Open doors if an obstacle is detected
+     */
+    socket.on('action_open_doors_obstacle', function () {
+        log('command', 'Obstacle detected');
+        elevator.openDoorsBecauseOfObstacle();
+    });
+
+    /**
      * Close doors command
      */
     socket.on('action_close_doors', function () {
@@ -76,6 +85,11 @@ io.on('connection', function (socket) {
         elevator.addRequest(data);
     });
 });
+
+/**
+ * components
+ */
+initComponent();
 
 /**
  * Storage

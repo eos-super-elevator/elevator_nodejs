@@ -2,7 +2,8 @@ import io_client from 'socket.io-client';
 import {updateElevatorInCache} from '../helpers/persistElevator';
 import building from "./building";
 import log from '../helpers/advancedLog';
-import printOnLcd from '../components/lcd';
+import {printOnLcd} from '../components/lcd';
+import {watchDoors, stopWatchDoors} from '../components/sonar';
 
 export default class Elevator {
 
@@ -16,6 +17,7 @@ export default class Elevator {
         this.doors.percent = 100; // 100 : closed | 0 opened
         this.doors.timer_toggle = 2000;
         this.doors.timer_before_close = 2000;
+        this.doors.width = 200;
 
         this.elevator = {};
         this.elevator.status = 'stopped'; // stopped | moving
@@ -236,6 +238,7 @@ export default class Elevator {
      */
     openDoors() {
         this.doors.command = 'open';
+        stopWatchDoors();
         this._timerObservable().subscribe({
             eventDuration: Math.round(this.doors.percent * this.doors.timer_toggle / 100),
             subscribeErrors: () => {
@@ -282,6 +285,14 @@ export default class Elevator {
     }
 
     /**
+     * Open doors if an obstacle is detected
+     */
+    openDoorsBecauseOfObstacle() {
+        printOnLcd('Obstacle detected', 2);
+        this.openDoors();
+    }
+
+    /**
      * Request close door after timer
      */
     delayCloseDoors() {
@@ -297,6 +308,7 @@ export default class Elevator {
      */
     closeDoors() {
         this.doors.command = 'close';
+        watchDoors();
         this._timerObservable().subscribe({
             eventDuration: Math.round((100 - this.doors.percent) * this.doors.timer_toggle / 100),
             subscribeErrors: () => {
@@ -329,6 +341,7 @@ export default class Elevator {
                 log('doors', `Doors : ${this.doors.percent}% closed`);
             },
             complete: () => {
+                stopWatchDoors();
                 this.doors.command = null;
                 this.setDoorsStatus('closed');
                 this.doors.percent = 100;
