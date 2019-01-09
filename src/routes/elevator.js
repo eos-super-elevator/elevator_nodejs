@@ -6,6 +6,8 @@ const fs = require('fs');
 const showdown = require('showdown');
 const router = express.Router();
 
+const endpoint = 'http://localhost:3000/';
+
 /**
  * API documentation
  */
@@ -30,7 +32,7 @@ router.get('/building', function (req, res) {
  * Open the elevator's doors
  */
 router.get('/doors/open', function (req, res) {
-    const socket = io_client.connect('http://localhost:3000/');
+    const socket = io_client.connect(endpoint);
     socket.emit('action_open_doors');
     res.sendStatus(204);
 });
@@ -39,7 +41,7 @@ router.get('/doors/open', function (req, res) {
  * Close the elevator's doors
  */
 router.get('/doors/close', function (req, res) {
-    const socket = io_client.connect('http://localhost:3000/');
+    const socket = io_client.connect(endpoint);
     socket.emit('action_close_doors');
     res.sendStatus(204);
 });
@@ -48,7 +50,7 @@ router.get('/doors/close', function (req, res) {
  * Go to the nth floor
  */
 router.get('/floor/:id/:action?', function (req, res) {
-    const socket = io_client.connect('http://localhost:3000/');
+    const socket = io_client.connect(endpoint);
     socket.emit('action_move_to', {floor: req.params.id, action: req.params.action ? req.params.action : null});
     res.sendStatus(204);
 });
