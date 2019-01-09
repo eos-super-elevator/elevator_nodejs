@@ -41,16 +41,11 @@ const io = io_server(server);
 io.on('connection', function (socket) {
 
     /**
-     * Emit the initial elevator state on connection
-     */
-    socket.emit('new_elevator_state', elevator);
-
-    /**
      * Emit the new elevator state
      */
     socket.on('updated_elevator', function () {
         log('state', 'Updated elevator state');
-        socket.emit('new_elevator_state', elevator);
+        io.emit('new_elevator_state', elevator);
     });
 
     /**
