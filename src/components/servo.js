@@ -16,7 +16,7 @@ let previousFloor = 0;
  */
 const initServo = (floor) => {
     console.log('Servo initialization');
-    moveMotor(0);
+    moveMotor(floor);
 };
 
 const moveMotor = (floor) => {
