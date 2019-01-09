@@ -60,7 +60,7 @@ export default class Elevator {
      */
     setElevatorFloor(floor) {
         this.elevator.floor = floor;
-        printOnLcd('Floor: ' + parseInt(floor), 1);
+        printOnLcd(`Floor: ${parseInt(floor)}       `, 1);
         console.log('Floor: ' + floor);
     }
 
