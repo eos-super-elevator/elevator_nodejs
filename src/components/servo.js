@@ -5,7 +5,7 @@ import building from '../models/building';
 const motor = new Gpio(5, {mode: Gpio.OUTPUT});
 
 // Pulse per floor
-const minPulse = 600, maxPulse = 2400;
+const minPulse = 600, maxPulse = 2300;
 const pulsePerFloor = (maxPulse - minPulse) / building.getMaxFloor();
 
 // Previous floor
