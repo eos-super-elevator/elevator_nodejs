@@ -31,19 +31,22 @@ const building = {
         },
         {
             "id": 7,
-            "restricted_area": false
+            "restricted_area": true
         },
         {
             "id": 8,
-            "restricted_area": false
+            "restricted_area": true
         },
         {
             "id": 9,
-            "restricted_area": false
+            "restricted_area": true
         }
     ],
     existsFloor: (floor) => {
         return (floor >= 0 && floor <= building.floors.length);
+    },
+    restrictedFloor: (floor) => {
+        return !!building.floors[floor].restricted_area;
     },
     getMaxFloor: () => {
         return building.floors.length;
