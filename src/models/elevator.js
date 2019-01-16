@@ -5,6 +5,8 @@ import log from '../helpers/advancedLog';
 import {printOnLcd} from '../components/lcd';
 import {watchDoors, stopWatchDoors} from '../components/sonar';
 import {moveMotor} from '../components/servo';
+import {waitForBadge, password} from '../components/RFIDCard';
+import {redBlink, turnOnGreen, turnOnRed} from '../components/led';
 
 export default class Elevator {
 
@@ -118,10 +120,34 @@ export default class Elevator {
     addRequest(data) {
         if (!building.existsFloor(data.floor)) {
             log('command', 'Requested floor not found');
-        } else {
-            this.elevator.requested_floors.push(data);
+            return;
         }
-        this.move();
+        if (building.restrictedFloor(data.floor)) {
+            redBlink();
+            console.log('Restricted access');
+            printOnLcd(`Restricted floor ${data.floor}`, 2);
+            waitForBadge()
+                .then((pass) => {
+                    if (pass == password) {
+                        console.log('Authorized access');
+                        printOnLcd(`Authorized access`, 2);
+                        turnOnGreen(3000);
+                        this.elevator.requested_floors.push(data);
+                        this.move();
+                    } else {
+                        turnOnRed(3000);
+                    }
+                })
+                .catch(() => {
+                    console.log("Access denied");
+                    printOnLcd(`Access denied                 `, 2);
+                    turnOnRed(3000);
+                });
+        } else {
+            turnOnGreen(3000);
+            this.elevator.requested_floors.push(data);
+            this.move();
+        }
     }
 
     /**
