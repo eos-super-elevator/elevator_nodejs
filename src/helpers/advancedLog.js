@@ -1,8 +1,8 @@
 export default (category, message, important = false) => {
     // Current settings : yes | no | important
     const settings = {
-        doors: 'important',
-        state: 'no',
+        doors: 'yes',
+        state: 'yes',
         elevator: 'yes',
         command: 'yes'
     };
