@@ -11,6 +11,8 @@ import io_server from 'socket.io';
 import log from './helpers/advancedLog';
 import initComponent from './components/init';
 
+const cors = require('cors');
+
 /**
  * Express : Elevator simulation
  * @type {*|Function}
@@ -27,11 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+app.use(cors());
 
 /**
  * Routes : handles command via API
