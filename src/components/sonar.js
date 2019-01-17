@@ -44,6 +44,7 @@ const initSonar = () => {
  * Trigger a distance measurement once per second
  */
 const watchDoors = () => {
+    console.log('Detect obstacle with sonar');
     watchDoorsInterval = setInterval(() => {
         sonar.trigger.trigger(10, 1); // Set trigger high for 10 microseconds
     }, 200);
