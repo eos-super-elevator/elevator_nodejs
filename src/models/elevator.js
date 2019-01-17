@@ -29,6 +29,10 @@ export default class Elevator {
         this.setElevatorFloor(state ? state.elevator.floor : 0);
         this.elevator.requested_floors = [];
         this.elevator.new_request = false;
+
+        this.access = 'authorized'; // authorized | denied | waiting
+
+        this.building = building.floors;
     }
 
     /**
@@ -55,6 +59,31 @@ export default class Elevator {
         }
         printOnLcd(message, 2);
         console.log(message);
+    }
+
+    /**
+     * Update elevator access
+     */
+    setElevatorAccess(state) {
+        this.access = state;
+        switch (state) {
+            case 'waiting':
+                redBlink();
+                console.log('Restricted access');
+                printOnLcd(`Restricted floor      `, 2);
+                break;
+            case 'authorized':
+                turnOnGreen(3000);
+                console.log('Authorized access');
+                printOnLcd(`Authorized access             `, 2);
+                break;
+            case 'denied':
+                console.log("Access denied");
+                printOnLcd(`Access denied                 `, 2);
+                turnOnRed(3000);
+                break;
+        }
+        this._updateState();
     }
 
     /**
@@ -123,15 +152,11 @@ export default class Elevator {
             return;
         }
         if (building.restrictedFloor(data.floor)) {
-            redBlink();
-            console.log('Restricted access');
-            printOnLcd(`Restricted floor ${data.floor}`, 2);
+            this.setElevatorAccess('waiting');
             waitForBadge()
                 .then((pass) => {
                     if (pass == password) {
-                        console.log('Authorized access');
-                        printOnLcd(`Authorized access`, 2);
-                        turnOnGreen(3000);
+                        this.setElevatorAccess('authorized');
                         this.elevator.requested_floors.push(data);
                         this.move();
                     } else {
@@ -139,9 +164,7 @@ export default class Elevator {
                     }
                 })
                 .catch(() => {
-                    console.log("Access denied");
-                    printOnLcd(`Access denied                 `, 2);
-                    turnOnRed(3000);
+                    this.setElevatorAccess('denied');
                 });
         } else {
             turnOnGreen(3000);
