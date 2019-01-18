@@ -1,0 +1,12 @@
+.header {
+  margin-top: 10px;
+  display: flex;
+}
+.header .logo {
+  height: 70px;
+}
+@media only screen and (max-width: 768px) {
+  .header {
+    display: none;
+  }
+}

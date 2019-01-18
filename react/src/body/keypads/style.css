@@ -1,0 +1,82 @@
+.keypad-container {
+    flex-basis: 50%;
+}
+.keypad {
+  height: 548px;
+  width: 354px;
+  margin: 50px auto;
+  border: 1px solid white;
+  background-color: black;
+}
+.keyboard {
+    text-align: center;
+    width: 400px;
+    height:150px;
+    margin:0 auto;
+    padding: auto;
+}
+.keys {
+  list-style-type:none;
+  margin-left: -20px;
+}
+.keys .key {
+  width:25%;
+  display:block;
+  text-align:center;
+  height:2em;
+  float:left;
+  font-size:1.9em;
+  font-family:sans-serif;
+  padding-top:.7em;
+  border:2px solid rgb(100,100,100);
+  color: black;
+  background-color: white;
+  margin-left: 5px;
+  margin-bottom: 5px;
+}
+.keys .key:hover {
+  cursor: pointer;
+  background-color: #23cbff;
+}
+.key:active {
+  box-shadow: inset 0px 0px 10px 2px rgba(32,113,138,1);
+}
+
+.key.active {
+  box-shadow: 0px 0px 18px 4px rgba(17,192,245,1);
+  background-color: #23cbff;
+  border: 2px solid #23cbff;
+}
+.keypad .screen {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    clear:both;
+    width: 278px;
+    margin-left: 24px;
+    color: white;
+    background-color: black;
+    border: 2px solid #c1c0c0;
+    font-family:'Helvetica';
+    font-size:2em;
+    margin-top:0.8em;
+    padding:.4em;
+    height: 3em;
+}
+.keypad .numberEmp {
+    align-self: center;
+    color: white;
+    text-align: center;
+    font-size: 65px;
+    margin-left: 90px;
+}
+.keypad .arrow {
+    align-items: flex-end;
+    align-self: center;
+    color: white;
+    font-size: 25px;
+}
+.ElevatorRange{
+    font-size: 20px;
+    margin: auto;
+}

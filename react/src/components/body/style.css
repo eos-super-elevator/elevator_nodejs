@@ -1,0 +1,306 @@
+.body {
+  display: flex;
+  height: 90vh;
+}
+
+/* KEYPAD */
+.keypad-container {
+  flex-basis: 50%;
+}
+.keypad {
+  height: 548px;
+  width: 354px;
+  margin: 50px auto;
+  border: 1px solid white;
+  background-color: black;
+}
+.keyboard {
+  text-align: center;
+  width: 400px;
+  height:150px;
+  margin:0 auto;
+  padding: auto;
+}
+.keys {
+  list-style-type:none;
+  margin-left: -20px;
+}
+.keys .key {
+  width:25%;
+  display:block;
+  text-align:center;
+  height:2em;
+  float:left;
+  font-size:1.9em;
+  font-family:sans-serif;
+  padding-top:.7em;
+  border:2px solid rgb(100,100,100);
+  color: black;
+  background-color: white;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+.keys .key:hover {
+  cursor: pointer;
+  background-color: #23cbff;
+}
+.numbKey:hover {
+  background-color: #23cbff;
+}
+.key:active {
+  box-shadow: inset 0px 0px 10px 2px rgba(32,113,138,1);
+}
+
+.key.active {
+  box-shadow: 0px 0px 18px 3px rgba(17,192,245,1);
+  background-color: #23cbff;
+  border: 2px solid #23cbff;
+}
+.keypad .screen {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  clear:both;
+  width: 278px;
+  margin-left: 24px;
+  color: white;
+  background-color: black;
+  border: 2px solid #c1c0c0;
+  font-family:'Helvetica';
+  font-size:2em;
+  margin-top:0.8em;
+  padding:.4em;
+  height: 3em;
+}
+.keypad .numberEmp {
+  align-self: center;
+  color: white;
+  text-align: center;
+  font-size: 65px;
+  margin-left: 90px;
+}
+.keypad .arrow {
+  align-items: flex-end;
+  align-self: center;
+  color: white;
+  font-size: 25px;
+}
+.ElevatorRange{
+  font-size: 17px;
+  padding-top: 10px;
+  margin: auto;
+}
+.faKey {
+  padding-right: 0px;
+}
+li svg {
+  margin-left: 3px;
+  font-size: 42px !important;
+}
+.keypad .arrow {
+  font-size: 34px;
+  margin-top: 10px;
+  animation: blinker 2s linear infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ELEVATOR */
+.elevator-container {
+  flex-basis: 50%;
+}
+.elevator {
+  height: auto;
+  width: 400px;
+  margin: auto;
+  border: 1px solid black;
+  display: flex;
+}
+.elevator .left, .elevator .right {
+  height: 100%;
+  flex-basis: 25%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.elevator .center {
+  background-color: black;
+  flex-basis: 50%;
+  position: relative;
+}
+.elevator .right .floor, .elevator .left .floor {
+  height: 60px;
+  width: 50%;
+  line-height: 70px;
+  text-align: center;
+}
+.floor .arrow {
+  font-size: 20px;
+  border: 1px solid #999;
+  padding: 5px;
+}
+.floor .arrow.active {
+  border: 1px solid #47C2EA;
+  background-color: #47C2EA;
+  box-shadow: 0 0 5px 0 #47C2EA inset, 0 0 10px 2px #47C2EA;
+}
+.stages {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.stage {
+  height: 60px;
+  line-height: 60px;
+  position: relative;
+}
+.stage-number {
+  color: white;
+}
+.lock-icon-wrapper {
+  position: absolute;
+  top: 0;
+  right: -12px;
+  color: red;
+  font-size: 30px;
+  opacity: 0.3;
+  animation: bounce .5s infinite alternate;
+}
+@keyframes activate {
+  from { color: green; }
+  to { opacity: 0; }
+}
+.unlocked {
+  animation: activate 2s 0;
+}
+@keyframes bounce {
+  from { opacity: 0.4; }
+  to { opacity: 0.2;}
+}
+.doors {
+  position: absolute;
+  height: 60px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.left-door, .right-door {
+  height: 100%;
+  width: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.left-door {
+  margin-left: 10px;
+  border-right: 1px solid black;
+}
+.right-door {
+  margin-right: 10px;
+  border-left: 1px solid black;
+}
+
+.doors.isMoving {
+  -webkit-transition: 3s;
+  -moz-transition: 3s;
+  -ms-transition: 3s;
+  -o-transition: 3s;
+  transition: 3s;
+}
+
+.door.isOpened, .door.isClosed {
+  -webkit-transition: 3s;
+  -moz-transition: 3s;
+  -ms-transition: 3s;
+  -o-transition: 3s;
+  transition: 3s;
+}
+.door.isOpened {
+  width: 5%;
+  animation: opening 3s 0;
+}
+.door.isClosed {
+  width: 100%;
+  animation: opening 3s 0;
+}
+@-webkit-keyframes opening {
+  from { width: 100%; }
+  to { width: 5%; }
+}
+
+@keyframes opening {
+  from { width: 100%; }
+  to { width: 5%; }
+}
+@-webkit-keyframes closing {
+  from { width: 5%; }
+  to { width: 100%; }
+}
+
+@keyframes closing {
+  from { width: 5%; }
+  to { width: 100%; }
+}
+
+@media only screen and (max-width: 768px) {
+  .body {
+    height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: block;
+  }
+  .keypad-container {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+  .keypad {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    border: none;
+  }
+  .keypad .screen {
+    flex-basis: 50%;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+  .keyboard {
+    flex-basis: 50%;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+  }
+  .keys {
+    margin: 0;
+  }
+}
+/* Mode mobile */
+.MobileView {
+  display: flex;
+  flex-direction: column;
+  font-size: 40px;
+}
+.MobileView .arrow {
+  font-size: 30px;
+  margin-left: 20px;
+}
+@media screen and (max-width: 580px)
+{
+  .ElevatorRange{
+      font-size: 30px;
+      margin: auto;
+  }
+}
